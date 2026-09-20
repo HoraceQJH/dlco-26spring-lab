@@ -1,0 +1,484 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.4cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+
+\definecolor{main}{RGB}{38,70,83}
+\definecolor{sub}{RGB}{233,236,239}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{实验4 运算部件设计}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{main}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{main}}{\thesubsection}{0.5em}{}
+
+\setlist[itemize]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+
+\newcommand{\blankline}[1]{\vspace{0.25em}\noindent\rule{#1}{0.4pt}\vspace{0.25em}}
+\newcommand{\placeholder}[1]{
+\begin{tcolorbox}[colback=sub,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+#1
+\end{tcolorbox}
+}
+\newcommand{\truthtable}[4]{%
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+\renewcommand{\arraystretch}{0.75}
+\begin{tabular}{#2}
+\toprule
+#3\\
+\midrule
+#4
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\par\medskip%
+}
+\newcommand{\figureplaceholder}[2]{
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+\IfFileExists{figures/#2}{%
+\includegraphics[width=0.80\linewidth]{figures/\detokenize{#2}}%
+}{%
+\fbox{\parbox[c][6cm][c]{0.80\linewidth}{\centering 图片请放在 figures/\texttt{\detokenize{#2}}}}
+}%
+\end{tcolorbox}
+\par\medskip
+}
+\newcommand{\riskimage}[2]{%
+\begin{minipage}[t]{0.31\linewidth}
+\centering
+\includegraphics[height=3.75cm]{figures/\detokenize{#1}}\par
+{\small #2}
+\end{minipage}%
+}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries 实验报告}\\[0.8em]
+{\LARGE 实验4 运算部件设计}\\[1.2em]
+\end{center}
+
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm]
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X >{\bfseries}p{2.6cm}X}
+课程名称 & 数字逻辑与计算机组成 & 指导教师 & 吴海军 \\
+\end{tabularx}
+\end{tcolorbox}
+
+\section{实验目的}
+\placeholder{\begin{itemize}
+\item 掌握先行进位部件 CLU 和先行进位加法器 CLA 的设计方法。
+\item 掌握 32 位快速加法器和标志位的设计方法。
+\item 掌握 32 位桶形移位器的设计方法。
+\item 掌握 RV32I 算术逻辑部件的设计方法。
+\end{itemize}}
+
+\section{实验环境}
+\placeholder{\begin{itemize}
+\item 平台：Logisim
+\end{itemize}}
+
+\section{实验内容}
+
+\subsection{4 位先行进位加法器 CLA}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    \begin{itemize}
+    \item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+    \item 输入输出引脚：
+    \begin{center}
+    \renewcommand{\arraystretch}{1.25}
+    \setlength{\tabcolsep}{8pt}
+    \begin{tabularx}{0.78\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+    \hline
+    X,Y & 输入数据 \\
+    \hline
+    Z & 输出数据 \\
+    \hline
+    Cin & 进位输入 \\
+    \hline
+    Cout & 进位输出 \\
+    \hline
+    Pg & 组间进位传递函数 \\
+    \hline
+    Gg & 组间进位生成函数 \\
+    \hline
+    \end{tabularx}
+
+    \vspace{0.6em}
+
+    Table 1: CLA4 引脚作用
+
+    \vspace{1.0em}
+
+    \begin{tabularx}{0.78\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+    \hline
+    P1$\sim$P4 & 进位传递函数 \\
+    \hline
+    G1$\sim$G4 & 进位生成函数 \\
+    \hline
+    C0 & 进位输入 \\
+    \hline
+    C1$\sim$C4 & 进位输出 \\
+    \hline
+    Pg & 组间进位传递函数 \\
+    \hline
+    Gg & 组间进位生成函数 \\
+    \hline
+    \end{tabularx}
+
+    \vspace{0.6em}
+
+    Table 2: CLU4 引脚作用
+    \end{center}
+    \end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{4 位先行进位部件原理图}{exp4_clu_principle.png}
+\figureplaceholder{4 位先行进位部件子电路图}{exp4_clu_circuit.png}
+\figureplaceholder{全加器子电路图}{exp4_fa_circuit.png}
+\figureplaceholder{4 位快速加法器子电路图}{exp4_cla_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{4 位快速加法器仿真测试图}{exp4_cla_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{本实验中没有发生错误。}
+
+\subsection{16 位两级先行进位加法器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    \begin{itemize}
+    \item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+    \item 输入输出引脚：
+    \begin{center}
+    \renewcommand{\arraystretch}{1.25}
+    \setlength{\tabcolsep}{8pt}
+    \begin{tabularx}{0.78\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+    \hline
+    X,Y & 输入数据 \\
+    \hline
+    S & 输出数据 \\
+    \hline
+    C0 & 进位输入 \\
+    \hline
+    C16 & 进位输出 \\
+    \hline
+    Pg & 组间进位传递函数 \\
+    \hline
+    Gg & 组间进位生成函数 \\
+    \hline
+    \end{tabularx}
+    \end{center}
+    \end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{16 位两级先行进位加法器原理图}{exp4_adder16_principle.png}
+\figureplaceholder{16 位两级先行进位加法器电路图}{exp4_adder16_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{16 位两级先行进位加法器仿真测试图}{exp4_adder16_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{本实验中没有发生错误。}
+
+\subsection{32 位快速加法器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    \begin{itemize}
+        \item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+        \item 输入输出引脚：
+        \begin{center}
+        \renewcommand{\arraystretch}{1.25}
+        \setlength{\tabcolsep}{8pt}
+        \begin{tabularx}{0.78\linewidth}{|>{\centering\arraybackslash}p{0.34\linewidth}|>{\centering\arraybackslash}X|}
+        \hline
+        X/Y & 输入数据 \\
+        \hline
+        S & 输出数据 \\
+        \hline
+        Cin & 进位输入 \\
+        \hline
+        Cout & 进位输出 \\
+        \hline
+        CF、SF、OF、ZF & 标志位 \\
+        \hline
+        \end{tabularx}
+        \end{center}
+    \end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{加法器标志位生成原理图}{exp4_adder32_principle.png}
+\figureplaceholder{32 位快速加法器子电路图}{exp4_adder32_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{32 位快速加法器仿真测试图}{exp4_adder32_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    在 OF 标志位的组合逻辑电路设计中，错误的认为异或门可以代替功能，导致错我。修正为 $OF = X_{n-1} \cdot Y_{n-1} \cdot \overline{F_{n-1}} + \overline{X_{n-1}} \cdot \overline{Y_{n-1}} \cdot F_{n-1}$ 后电路正常工作，成功通过了测试。
+}
+
+\subsection{32 位桶形移位器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    \begin{itemize}
+        \item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+        \item 功能表：
+        \begin{center}
+        \renewcommand{\arraystretch}{1.25}
+        \setlength{\tabcolsep}{5pt}
+        \begin{tabularx}{\linewidth}{|>{\centering\arraybackslash}p{0.08\linewidth}|>{\centering\arraybackslash}p{0.22\linewidth}|>{\centering\arraybackslash}p{0.05\linewidth}|>{\centering\arraybackslash}p{0.05\linewidth}|>{\raggedright\arraybackslash}X|}
+        \hline
+        Din & shamt & LR & AL & Dout \\
+        \hline
+        x & $y(1\le y\le 32,$ 下同) & 0 & 0 & 逻辑右移 $y$ 位，移入 0 \\
+        \hline
+        x & $y$ & 0 & 1 & 算数右移 $y$ 位，移入符号位 \\
+        \hline
+        x & $y$ & 1 & 0 & 逻辑左移 $y$ 位，移入 0 \\
+        \hline
+        x & $y$ & 1 & 1 & 循环左移 $y$ 位，将移出位移入 \\
+        \hline
+        \end{tabularx}
+        \end{center}
+    \end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{32 位桶形移位器电路图}{exp4_shifter32_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{32 位桶形移位器仿真测试图}{exp4_shifter32_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{实验中没有发生错误。}
+
+\subsection{RV32I 算术逻辑部件实验}
+
+\placeholder{
+    \begin{itemize}
+        \item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+        \item 功能表：
+        \begin{center}
+        \renewcommand{\arraystretch}{1.25}
+        \setlength{\tabcolsep}{7pt}
+        \begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{0.16\linewidth}|>{\centering\arraybackslash}X|}
+        \hline
+        ALUctr & 操作控制信号 \\
+        \hline
+        SUBctr & SUBctr=1 时，ALU 作减法；SUBctr=0 时，做加法 \\
+        \hline
+        SIGctr & SIGctr=1，执行“带符号整数比较小于置 1”；SIGctr=0，执行“无符号数比较小于置 1” \\
+        \hline
+        LRctr & 控制桶形移位器移位方向 \\
+        \hline
+        ALctr & ALctr=0 逻辑移位；ALctr=1，算术移位 \\
+        \hline
+        OPctr & 控制选择运算结果作为 Result 输出 \\
+        \hline
+        \end{tabularx}
+        \end{center}
+    \end{itemize}
+}
+
+\figureplaceholder{ALUctr 操作控制部件电路图}{exp4_aluctrl_circuit.png}
+
+\figureplaceholder{ALU 组件原理图}{exp4_alu_principle.png}
+\figureplaceholder{ALU 电路图}{exp4_alu_circuit.png}
+
+\subsubsection{功能测试}
+\placeholder{
+    \begin{center}
+    \renewcommand{\arraystretch}{1.3}
+    \setlength{\tabcolsep}{3pt}
+    \scriptsize
+    \begin{tabularx}{\linewidth}{|c|>{\raggedright\arraybackslash\hsize=1.4\hsize}X|c|c|c|c|c|>{\raggedright\arraybackslash\hsize=0.6\hsize}X|}
+    \hline
+    \shortstack{ALUctr\\<3:0>} & 指令操作类型 & SUBctr & SIGctr & ALctr & LRctr & \shortstack{OPctr\\<2:0>} & OPctr 的含义 \\
+    \hline
+    0000 & auipc, addi, add, jal, jalr, lb, lh, lw, lbu, lhu, sb, sh, sw: 加法 & 0 & $\times$ & $\times$ & $\times$ & 000 & 选择加法器的结果输出 \\
+    \hline
+    0001 & sll, slli: 逻辑左移 & $\times$ & $\times$ & 0 & 1 & 100 & 选择移位器结果输出 \\
+    \hline
+    0010 & slt, slti, beq, bne, blt, bge: 带符号数小于比较 & 1 & 1 & $\times$ & $\times$ & 110 & 选择小于置位结果输出 \\
+    \hline
+    0011 & sltu, sltui, bltu, bgeu: 无符号数小于比较 & 1 & 0 & $\times$ & $\times$ & 110 & 选择小于置位结果输出 \\
+    \hline
+    0100 & xor, xori: 异或 & $\times$ & $\times$ & & & 011 & 选择“按位异或”结果输出 \\
+    \hline
+    0101 & srl, srli: 逻辑右移 & $\times$ & $\times$ & 0 & 0 & 100 & 选择移位器结果输出 \\
+    \hline
+    0110 & or, ori: 或运算 & $\times$ & $\times$ & $\times$ & $\times$ & 010 & 选择“按位或”结果输出 \\
+    \hline
+    0111 & and, andi: 与运算 & $\times$ & $\times$ & $\times$ & $\times$ & 001 & 选择“按位与”结果输出 \\
+    \hline
+    1000 & sub: 减法 & 1 & $\times$ & $\times$ & $\times$ & 000 & 选择加法器的结果输出 \\
+    \hline
+    1101 & sra, srai: 算术右移 & $\times$ & $\times$ & 1 & 0 & 100 & 选择移位器结果输出 \\
+    \hline
+    其余 & （未用） & & & & & & \\
+    \hline
+    1111 & lui: 取操作数 B & $\times$ & $\times$ & $\times$ & $\times$ & 101 & 选择操作数 B直接输出 \\
+    \hline
+    \end{tabularx}
+    \end{center}
+}
+
+\par\medskip
+\begin{center}
+\bfseries 表 4.2\quad ALU 功能测试表
+\end{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.2}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\begin{longtable}{|c|c|c|c|c|c|}
+\hline
+序号 & A & B & \shortstack{ALUctr\\<3:0>} & Result & Zero \\
+\hline
+\endfirsthead
+\hline
+序号 & A & B & \shortstack{ALUctr\\<3:0>} & Result & Zero \\
+\hline
+\endhead
+1 & 0x80000000 & 0x7fffffff & 0000 & 0xffffffff & 0 \\
+\hline
+2 & 0x01 & 0x7fffffff & 0001 & 0x80000000 & 0 \\
+\hline
+3 & 0x80000000 & 0x7fffffff & 0010 & 0x00000001 & 0 \\
+\hline
+4 & 0x80000000 & 0x7fffffff & 0011 & 0x00000000 & 1 \\
+\hline
+5 & 0x80000000 & 0x7fffffff & 0100 & 0xffffffff & 0 \\
+\hline
+6 & 0x80000000 & 0x7fffffff & 0101 & 0x00000001 & 0 \\
+\hline
+7 & 0x80000000 & 0x7fffffff & 0110 & 0xffffffff & 0 \\
+\hline
+8 & 0x80000000 & 0x7fffffff & 0111 & 0x00000000 & 1 \\
+\hline
+9 & 0x80000000 & 0x7fffffff & 1000 & 0x00000001 & 0 \\
+\hline
+10 & 0x80000000 & 0x7fffffff & 1101 & 0xffffffff & 0 \\
+\hline
+11 & 0x80000000 & 0x7fffffff & 1111 & 0x7fffffff & 0 \\
+\hline
+12 & 0x80000000 & 0x80000000 & 0000 & 0x00000000 & 1 \\
+\hline
+13 & 0x80000000 & 0x80000000 & 0010 & 0x00000000 & 1 \\
+\hline
+14 & 0x80000000 & 0x80000000 & 0011 & 0x00000000 & 1 \\
+\hline
+15 & 0x80000000 & 0x80000000 & 0100 & 0x00000000 & 1 \\
+\hline
+16 & 0x80000000 & 0x80000000 & 0101 & 0x80000000 & 0 \\
+\hline
+17 & 0x80000000 & 0x80000000 & 0110 & 0x80000000 & 0 \\
+\hline
+18 & 0x80000000 & 0x80000000 & 0111 & 0x80000000 & 0 \\
+\hline
+19 & 0x80000000 & 0x80000000 & 1000 & 0x00000000 & 1 \\
+\hline
+20 & 0x80000000 & 0x80000000 & 1101 & 0x80000000 & 0 \\
+\hline
+21 & 0x80000000 & 0x80000000 & 1111 & 0x80000000 & 0 \\
+\hline
+22 & 0x5a5a5a5a & 0xa5a5a5a5 & 0000 & 0xffffffff & 0 \\
+\hline
+23 & 0x5a5a5a5a & 0xa5a5a5a5 & 0001 & 0x4b4b4b40 & 0 \\
+\hline
+24 & 0x5a5a5a5a & 0xa5a5a5a5 & 0010 & 0x00000000 & 1 \\
+\hline
+25 & 0x5a5a5a5a & 0xa5a5a5a5 & 0011 & 0x00000001 & 0 \\
+\hline
+26 & 0x5a5a5a5a & 0xa5a5a5a5 & 0100 & 0xffffffff & 0 \\
+\hline
+27 & 0x5a5a5a5a & 0xa5a5a5a5 & 0101 & 0x02d2d2d2 & 0 \\
+\hline
+28 & 0x5a5a5a5a & 0xa5a5a5a5 & 0110 & 0xffffffff & 0 \\
+\hline
+29 & 0x5a5a5a5a & 0xa5a5a5a5 & 0111 & 0x00000000 & 1 \\
+\hline
+30 & 0x5a5a5a5a & 0xa5a5a5a5 & 1000 & 0xb4b4b4b5 & 0 \\
+\hline
+31 & 0x5a5a5a5a & 0xa5a5a5a5 & 1101 & 0x02d2d2d2 & 0 \\
+\hline
+32 & 0x5a5a5a5a & 0xa5a5a5a5 & 1111 & 0xa5a5a5a5 & 0 \\
+\hline
+\end{longtable}
+\normalsize
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{ALUctrl 操作控制部件仿真测试图}{exp4_aluctrl_simulation.png}
+\figureplaceholder{ALU 电路仿真测试图}{exp4_alu_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    共修复了三处问题：
+    \begin{itemize}
+        \item 一个符号扩展器错误地使用了 0 扩展器，导致算术右移功能错误。
+        \item L/R 与 A/L 控制信号连接反了，导致移位器功能错误。
+        \item 两个针脚之间不小心链接。
+    \end{itemize}
+}
+
+\section{思考题}
+
+\subsection{通过查找资料，实现一种 64 位二进制快速加法器的设计。}
+\placeholder{
+    可以直接通过 16 位两级先行进位加法器的设计方法，将 64 位分为 4 个 16 位块，每个块使用一个 16 位两级先行进位加法器，并使用一个 CLU4 来连接这四个块。保存在文件 lab4.6.circ 中。
+}
+\figureplaceholder{64 位二进制快速加法器电路图}{exp4_adder64_design.png}
+
+\subsection{将实验 3 中的快速乘法器设计电路扩展到 32 位无符号数相乘，并探讨如何将该乘法器融合到实验中的 ALU 电路来实现乘法运算。}
+\placeholder{
+    采用与实验3.3中相同的无符号乘法算法，使用线路进行位移而非桶形移位器。与ALU的融合将在下一题目中进行回答。保存在文件 lab4.7.circ 中。
+}
+\figureplaceholder{32 位无符号数乘法器电路图}{exp4_multiplier32_design.png}
+
+\subsection{假设在 RV32I 中新增一条指令，导致在 ALU 中增加一个新运算操作，试修改 ALU 设计电路，并通过测试数据进行验证。}
+\placeholder{
+    新增指令为乘法指令 mulr/mulh/mull，分别对应在 ALUctr=1001 时进行 reset，在ALUctr=1010 或 ALUctr=1011 时收取乘法运算的结果。由于输出结果为 64 位，于是用两个不同的 ALUctr 值来选择输出低 32 位（1010）或高 32 位（1011）。固定这两情况 OPctr 为 111，ALctr 分别为 0 与 1。而在 ALUctr=1001 时对输出没有要求，添加一个 RSctr引脚为 1。修改后的电路图如下所示。保存在文件 lab4.8.circ 中。
+}
+\figureplaceholder{新增乘法指令 ALU 电路图}{exp4_alu_mul_circuit.png}
+\figureplaceholder{新增乘法指令 ALUctrl 电路图}{exp4_alu_mulctrl_circuit.png}
+
+\subsection{分析比较运算使用独立的比较器和使用减法运算通过标志位来实现两种方法的特性。}
+\placeholder{
+    \begin{itemize}
+        \item 独立比较器的特点是针对比较运算专门设计，逻辑路径直接，输出结果明确，在只需要实现少量比较功能时较为简洁；但它需要额外的比较电路，硬件复用率较低，若同时支持有符号和无符号比较，还要分别处理不同的比较规则。
+        \item 使用减法运算并结合标志位实现比较，则是先完成 $A-B$，再根据 $ZF$、$SF$、$OF$、$CF$ 判断相等、小于或无符号小于等关系。其中，等于可由 $ZF$ 判断，有符号小于可由 $SF\oplus OF$ 判断，无符号小于可由 $CF$ 判断。这种方法可以复用加法器和标志位生成电路，面积更小，与 ALU 的加减运算统一性更好。
+    \end{itemize}
+}
+
+\end{document}

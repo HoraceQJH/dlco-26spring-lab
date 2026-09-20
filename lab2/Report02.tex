@@ -1,0 +1,487 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.4cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+
+\definecolor{main}{RGB}{38,70,83}
+\definecolor{sub}{RGB}{233,236,239}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{实验2 组合逻辑部件设计}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{main}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{main}}{\thesubsection}{0.5em}{}
+
+\setlist[itemize]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+
+\newcommand{\blankline}[1]{\vspace{0.25em}\noindent\rule{#1}{0.4pt}\vspace{0.25em}}
+\newcommand{\placeholder}[1]{
+	\begin{tcolorbox}[colback=sub,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+	#1
+	\end{tcolorbox}
+}
+\newcommand{\truthtable}[4]{%
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\bfseries #1\par\smallskip
+		\renewcommand{\arraystretch}{0.75}
+		\begin{tabular}{#2}
+			\toprule
+			#3\\
+			\midrule
+#4
+			\bottomrule
+		\end{tabular}
+	\end{tcolorbox}
+	\par\medskip%
+}
+\newcommand{\figureplaceholder}[2]{
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\bfseries #1\par\smallskip
+		\IfFileExists{figures/#2}{%
+			\includegraphics[width=0.80\linewidth]{figures/\detokenize{#2}}%
+		}{%
+			\fbox{\parbox[c][6cm][c]{0.80\linewidth}{\centering 图片请放在 figures/\texttt{\detokenize{#2}}}}
+		}%
+	\end{tcolorbox}
+	\par\medskip
+}
+\newcommand{\riskimage}[2]{%
+	\begin{minipage}[t]{0.31\linewidth}
+		\centering
+		\includegraphics[height=3.75cm]{figures/\detokenize{#1}}\par
+		{\small #2}
+	\end{minipage}%
+}
+
+\begin{document}
+
+\begin{center}
+	{\Huge\bfseries 实验报告}\\[0.8em]
+	{\LARGE 实验2 组合逻辑部件设计}\\[1.2em]
+\end{center}
+
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm]
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X >{\bfseries}p{2.6cm}X}
+课程名称 & 数字逻辑与计算机组成 & 指导教师 & 吴海军 \\
+\end{tabularx}
+\end{tcolorbox}
+
+\section{实验目的}
+\placeholder{\begin{itemize}
+	\item 掌握译码器、编码器、数码管等组合部件的设计方法。
+	\item 掌握 1 位加法器、4 位串行加法器的设计方法。
+	\item 掌握补码减法运算方法，实现补码减法功能。
+	\item 掌握汉明码编码和纠错的设计方法。
+	\item 掌握桶形移位器的设计方法。
+\end{itemize}}
+
+\section{实验环境}
+\placeholder{\begin{itemize}
+	\item 平台：Logisim 2.16
+\end{itemize}}
+
+\section{实验内容}
+
+\subsection{译码器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层模块设计：} 实验电路较为简单，不需要顶层模块设计图。
+		\item{输入输出引脚：} G1、G2A\_L、G2B\_L 为译码器使能端(G1 高电平有效，G2A\_L、G2B\_L 低电平有效)，ABC 3-8 为译码器的输入端(C 为最高位，A 为最低位)，Y1\_L 到 Y8\_L 为 3 译码器输出端(均为低电平有效)。
+		\item{实现思路：} 构造优先级判断与编码输出。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{译码器原理图}{decoder_principle.png}
+\figureplaceholder{译码器电路图}{decoder_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+	线上自动测试通过，下面是对某输入的仿真测试截图。
+}
+\figureplaceholder{译码器仿真测试图}{decoder_simulation.png}
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+	\centering\bfseries 74X138 功能表\par\smallskip
+	\renewcommand{\arraystretch}{1.1}
+	\begin{tabular}{ccc|ccc|cccccccc}
+		\toprule
+		\multicolumn{6}{c|}{输 入} & \multicolumn{8}{c}{输 出} \\
+		\cmidrule(r){1-6}\cmidrule(l){7-14}
+		G1 & G2A\_L & G2B\_L & C & B & A & Y7 & Y6 & Y5 & Y4 & Y3 & Y2 & Y1 & Y0 \\
+		\midrule
+		X & 1 & X & X & X & X & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+		X & X & 1 & X & X & X & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+		0 & X & X & X & X & X & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+		1 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 0 \\
+		1 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 & 0 & 1 \\
+		1 & 0 & 0 & 0 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 0 & 1 & 1 \\
+		1 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 0 & 1 & 1 & 1 \\
+		1 & 0 & 0 & 1 & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 \\
+		1 & 0 & 0 & 1 & 0 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 \\
+		1 & 0 & 0 & 1 & 1 & 0 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 1 \\
+		1 & 0 & 0 & 1 & 1 & 1 & 0 & 1 & 1 & 1 & 1 & 1 & 1 & 1 \\
+		\bottomrule
+	\end{tabular}
+\end{tcolorbox}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有发生错误。
+}
+
+\subsection{编码器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层模块设计：} 实验电路较为简单，不需要顶层模块设计图。
+		\item{输入输出引脚：} I0 – I7 为优先编码器输入端，O0 O1 O2 为输出端(O2 为最低位,O0 为最高位)。
+		\item{实现思路：} 构造优先级判断与编码输出。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{编码器原理图}{encoder_principle.png}
+\figureplaceholder{编码器电路图}{encoder_circuit.png}
+
+\subsubsection{实验数据仿真测试图与真值表}
+\placeholder{
+	线上自动测试通过，下面是对某输入的仿真测试截图与真值表。
+}
+\figureplaceholder{编码器仿真测试图}{encoder_simulation.png}
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+	\centering\bfseries 编码器真值表\par\smallskip
+	\renewcommand{\arraystretch}{1.1}
+	\begin{tabular}{cccccccc|ccc|c}
+		\toprule
+		\multicolumn{8}{c|}{输 入} & \multicolumn{3}{c|}{输 出} & \\
+		\cmidrule(r){1-8}\cmidrule(lr){9-11}
+		I0 & I1 & I2 & I3 & I4 & I5 & I6 & I7 & O0 & O1 & O2 & Hex显示 \\
+		\midrule
+		1 & X & X & X & X & X & X & X & 0 & 0 & 0 & 0 \\
+		0 & 1 & X & X & X & X & X & X & 0 & 0 & 1 & 1 \\
+		0 & 0 & 1 & X & X & X & X & X & 0 & 1 & 0 & 2 \\
+		0 & 0 & 0 & 1 & X & X & X & X & 0 & 1 & 1 & 3 \\
+		0 & 0 & 0 & 0 & 1 & X & X & X & 1 & 0 & 0 & 4 \\
+		0 & 0 & 0 & 0 & 0 & 1 & X & X & 1 & 0 & 1 & 5 \\
+		0 & 0 & 0 & 0 & 0 & 0 & 1 & X & 1 & 1 & 0 & 6 \\
+		0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 & 7 \\
+		\bottomrule
+	\end{tabular}
+\end{tcolorbox}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有发生错误。
+}
+
+\subsection{加法器与补码减法实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层模块设计图：} 见下方图表，先由 Y 与 Cin 结合控制补码，再将 X 与结果送入 4 位串行加法器。
+		\item{输入输出引脚：} 见下表。
+		\item{实现思路：} 先实现 1 位全加器，再串联得到 4 位串行进位加法器，并扩展为补码加减法电路。
+	\end{itemize}
+	\par\medskip
+	\centering
+	\resizebox{\linewidth}{!}{%
+	\begin{tikzpicture}[
+		node distance=8mm and 10mm,
+		>=Latex,
+		font=\small,
+		io/.style={draw=main, fill=sub, rounded corners=2pt, line width=0.8pt, minimum width=16mm, minimum height=8mm, align=center},
+		block/.style={draw=main, rounded corners=2pt, line width=0.9pt, minimum width=30mm, minimum height=12mm, align=center, fill=white},
+		arrow/.style={-{Latex[length=2.1mm]}, line width=0.9pt, draw=main}
+	]
+		\node[io] (x) {Cin};
+		\node[io, below=of x] (y) {Y[3:0]};
+		\node[io, below=of y] (cin) {X[3:0]};
+
+		\node[block, right=16mm of y] (xor) {Y 取反控制\\(XOR 阵列)};
+		\node[block, right=16mm of xor] (adder) {4 位串行\\进位加法器};
+
+		\node[io, right=18mm of adder, yshift=7mm] (sum) {SUM[3:0]};
+		\node[io, right=18mm of adder, yshift=-7mm] (cout) {Cout};
+
+		\node[draw=main, dashed, rounded corners=3pt, inner sep=4mm, fit=(xor)(adder), label=above:{补码加 / 减法顶层模块}] (group) {};
+
+		\coordinate (xbus) at ($(x.east)+(5mm,0)$);
+		\coordinate (ybus) at ($(y.east)+(5mm,0)$);
+		\coordinate (cinbus) at ($(cin.east)+(5mm,0)$);
+
+		\draw[arrow] (x.east) -- (xbus) |- (adder.west);
+		\draw[arrow] (y.east) -- (ybus) -- (xor.west);
+		\draw[arrow] (xor.east) -- node[above, midway] {$Y'[3:0]$} (adder.west);
+		\draw[arrow] (cin.east) -- (cinbus) |- (xor.south);
+		\draw[arrow] (cinbus) |- (adder.south);
+		\draw[arrow] (adder.east) -- (sum.west);
+		\draw[arrow] (adder.east) -- (cout.west);
+	\end{tikzpicture}%
+	}
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\renewcommand{\arraystretch}{1.35}
+		\begin{tabular}{|c|p{11.2cm}|}
+			\hline
+			X Y & 全加器的两个操作数 \\
+			\hline
+			Cin & 区分加减法运算，Cin=0 执行补码加法，Cin=1 执行补码减法 \\
+			\hline
+			SUM & 全加器的运算结果 \\
+			\hline
+			Cout & 判断 X 与 Y 或者（-Y）的补码加法时是否产生溢出进位（若进位则为 1） \\
+			\hline
+		\end{tabular}
+	\end{tcolorbox}
+}
+
+\subsubsection{实验原理图和电路图}
+
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+	\centering\bfseries 加法器与补码检测器实验原理图\par\smallskip
+	\begin{tikzpicture}[
+		scale=0.74,
+		transform shape,
+		>=Latex,
+		font=\footnotesize,
+		io/.style={draw=main, fill=sub, rounded corners=2pt, line width=0.8pt, minimum width=16mm, minimum height=7mm, align=center},
+		block/.style={draw=main, rounded corners=2pt, line width=0.9pt, minimum width=30mm, minimum height=13mm, align=center, fill=white},
+		adder/.style={draw=main, rounded corners=2pt, line width=0.9pt, minimum width=12mm, minimum height=9mm, align=center, fill=white},
+		arrow/.style={-{Latex[length=2.1mm]}, line width=0.9pt, draw=main}
+	]
+		\node[io] (x) at (0,0) {X[3:0]};
+		\node[io] (y) at (0,-1.8) {Y[3:0]};
+		\node[io] (cin) at (0,-3.6) {Cin};
+
+		\node[block] (comp) at (4.1,-1.8) {\parbox{3.0cm}{\centering 补码检测器\\\footnotesize Cin=0: Y 不变\\Cin=1: Y 取反并加 1}};
+
+		\node[adder] (fa0) at (8.0,-1.8) {\shortstack{F0\\全加器}};
+		\node[adder] (fa1) at (10.3,-1.8) {\shortstack{F1\\全加器}};
+		\node[adder] (fa2) at (12.6,-1.8) {\shortstack{F2\\全加器}};
+		\node[adder] (fa3) at (14.9,-1.8) {\shortstack{F3\\全加器}};
+		\coordinate (sumbusL) at (7.6,0.8);
+		\coordinate (sumbusR) at (14   .9,0.8);
+		\node[above, text=main] at (11.25,1.05) {SUM[3:0]};
+		\node[below, text=main] at (11.25,-3.25) {$Y'[3:0]$};
+		\node[io] (cout) at (17.0,-1.8) {Cout};
+
+		\draw[arrow] (x.east) -- (0.9,0);
+		\draw (0.9,0) -- (14.1,0);
+		\draw (7.2,0) -- (7.2,-1.3);
+		\draw (9.5,0) -- (9.5,-1.3);
+		\draw (11.8,0) -- (11.8,-1.3);
+		\draw (14.1,0) -- (14.1,-1.3);
+
+		\draw[arrow] (y.east) -- (comp.west);
+		\draw[arrow] (cin.east) -- ++(0.8,0) |- (comp.south);
+		\draw[arrow] (8.0,-3.0) -- (fa0.south);
+		\draw[arrow] (10.3,-3.0) -- (fa1.south);
+		\draw[arrow] (12.6,-3.0) -- (fa2.south);
+		\draw[arrow] (14.9,-3.0) -- (fa3.south);
+		\draw[arrow] (comp.east) -- (6.8,-3.0);
+		\draw[arrow] (6.8,-3.0) -- (15.2,-3.0);
+
+		\draw[arrow] (fa0.east) -- node[above, midway] {$C_0$} (fa1.west);
+		\draw[arrow] (fa1.east) -- node[above, midway] {$C_1$} (fa2.west);
+		\draw[arrow] (fa2.east) -- node[above, midway] {$C_2$} (fa3.west);
+		\draw[arrow] (fa3.east) -- (cout.west);
+		\draw[arrow] (fa0.north) -- (8.0,0.8);
+		\draw[arrow] (fa1.north) -- (10.3,0.8);
+		\draw[arrow] (fa2.north) -- (12.6,0.8);
+		\draw[arrow] (fa3.north) -- (14.9,0.8);
+		\draw[arrow] (sumbusL) -- (sumbusR);
+	\end{tikzpicture}
+\end{tcolorbox}
+
+\figureplaceholder{全加器电路图}{full_adder_circuit.png}
+\figureplaceholder{4位加法器与补码减法电路图}{adder_subtractor_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{加法器仿真测试图}{adder_simulation.png}
+\figureplaceholder{补码减法仿真测试图}{subtractor_simulation.png}
+\placeholder{
+	真值表此处过长且不便展示，故省略。
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有发生错误。
+}
+
+\subsection{汉明码校验电路}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层模块设计图：} 
+		\figureplaceholder{顶层模块设计图}{hamming_design.png}
+		\item{输入输出引脚：} 见下表。
+		\item{实现思路：} 利用译码器、奇偶校验子电路、隧道和分线器等组件构造检错逻辑。
+	\end{itemize}
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\renewcommand{\arraystretch}{1.35}
+		\begin{tabular}{|c|p{11.0cm}|}
+			\hline
+			Input & 输入需要进行检验/纠错的数据 \\
+			\hline
+			Output & 输出纠错后的数据 \\
+			\hline
+			NoError & 指示数据是否有误（无误为 1） \\
+			\hline
+			错误位 & 指出时数据的哪一位出现错误 \\
+			\hline
+		\end{tabular}
+	\end{tcolorbox}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{汉明码原理图}{hamming_principle.png}
+\placeholder{
+	实验中使用的译码器为 2.1 节设计的 3-8 译码器。
+}
+\figureplaceholder{4位奇偶校验电路图}{even_odd4_circuit.png}
+\figureplaceholder{汉明码电路图}{hamming_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{汉明码仿真测试图}{hamming_simulation.png}
+\placeholder{
+	真值表此处过长且不便展示，故省略。
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有发生错误。
+}
+
+\subsection{桶形移位器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层模块设计图：} 本实验电路较为简单，不需要顶层模块设计图。
+		\item{输入输出引脚：} 见下表。
+		\item{实现思路：} 使用三级 4 路 8 位多路选择器级联，结合分线器和常量 0 完成移位控制。
+		
+	\end{itemize}
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\renewcommand{\arraystretch}{1.35}
+		\begin{tabular}{|c|p{10.9cm}|}
+			\hline
+			Din & 输入数据 \\
+			\hline
+			shamt & 控制移位位数，shamt[0]、shamt[1]、shamt[2] 分别控制是否移位 1、2、4 位，均为高电平有效 \\
+			\hline
+			Left/Right & 控制左移/右移，1 为左移，0 为右移 \\
+			\hline
+			Arth/Logic & 控制算数/逻辑移位，置 1 时算数（循环）移位，置 0 时逻辑移位 \\
+			\hline
+			Dout & 输出数据 \\
+			\hline
+		\end{tabular}
+	\end{tcolorbox}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{桶形移位器原理图}{shifter_principle.png}
+\figureplaceholder{桶形移位器电路图}{shifter_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{可记录不同移位方向、移位位数和移位类型下的输出结果。}
+\figureplaceholder{桶形移位器仿真测试图1}{shifter_simulation_1.png}
+\figureplaceholder{桶形移位器仿真测试图2}{shifter_simulation_2.png}
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+	\centering\renewcommand{\arraystretch}{1.35}
+	\begin{tabular}{|c|c|c|c|p{8.2cm}|}
+		\hline
+		Din & shamt & LR & AL & Dout \\
+		\hline
+		x & y(1<=y<=7，下同) & 0 & 0 & 逻辑右移 y 位，移入 0 \\
+		\hline
+		x & y & 0 & 1 & 算数右移 y 位，移入符号位 \\
+		\hline
+		x & y & 1 & 0 & 逻辑左移 y 位，移入 0 \\
+		\hline
+		x & y & 1 & 1 & 循环左移 y 位，将移出位移入 \\
+		\hline
+	\end{tabular}
+\end{tcolorbox}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有发生错误。
+}
+
+\section{思考题}
+
+\subsection{修改实验中的加法器电路，生成进位标志 CF、溢出标志 OF、符号标志 SF 和结果为零标志位 ZF。}
+\placeholder{
+\begin{itemize}
+	\item \textbf{CF（Carry Flag，进位标志）}：用于表示无符号运算是否产生进位或借位。对加法运算，若最高位产生进位则 CF=1，否则 CF=0。可写为 $CF=C_{out}$。
+	\item \textbf{OF（Overflow Flag，溢出标志）}：用于表示有符号补码运算是否发生溢出。若符号位的进位与最高位的进位不同，则 OF=1；否则 OF=0。可写为 $OF=C_{n}\oplus C_{n-1}$，其中 $C_n$ 为最高位输出进位，$C_{n-1}$ 为最高位输入进位。
+	\item \textbf{SF（Sign Flag，符号标志）}：用于表示结果的符号。结果最高位为 1 时表示负数，SF=1；否则 SF=0。可写为 $SF=S_{n-1}$。
+	\item \textbf{ZF（Zero Flag，零标志）}：用于表示运算结果是否为 0。若所有结果位均为 0，则 ZF=1；否则 ZF=0。可写为 $ZF=\overline{S_3 + S_2 + S_1 + S_0}$。
+\end{itemize}
+}
+
+\figureplaceholder{带标志位的加法器电路图}{adder_flag_circuit.png}
+
+\subsection{通过带标志位加法器生成带符号数与不带符号数小于等于比较运算 $X \leq Y$ 的电路。}
+\placeholder{
+	思路：首先将带标志位加法器的 Cin 值设为常数 1，进行 $Y - X$ 的运算。然后根据 CF、OF、SF 的值判断 $X \leq Y$ 的结果。
+	\begin{itemize}
+		\item 若为有符号数，则 SF = 1 时被减数小于减数，SF = 0 时被减数大于减数；
+		\item 若为无符号数，则 CF = 1 时被减数小于减数，CF = 0 时被减数大于减数。
+	\end{itemize}
+}
+\figureplaceholder{带标志位比较电路图}{comparison_flag_circuit.png}
+
+\subsection{使用逻辑门电路实现两个四位无符号二进制数比较器，输出大于、等于两个运算结果。}
+\placeholder{
+	逐位比较即可。
+}
+\figureplaceholder{四位无符号比较器电路图}{unsigned_comparator_circuit.png}
+
+\subsection{如何使用 8 位桶形移位器扩展到 32 位桶形移位器。}
+\placeholder{
+	在原有 8 位桶形移位器的基础上，可以先将其扩展为一个支持级联的 8 位模块，再通过多个模块并联组合实现 32 位桶形移位器。具体做法是为每个 8 位移位单元增加一个额外输入端 input，用来接收相邻字节的补充数据，从而避免移位后高位或低位直接补零。
+	 
+	当 AL =0 时，移位器仍按照普通逻辑移位方式工作：左移时低位补 0，右移时 位补 0；当 AL=1 时，移位器进入扩展模式：左移时由 input 的高位补入 datain 的低位，右移时由 input 的低位补入 datain 的高位。这样，每个 8 位模块都可以从相邻模块获得所需的数据位，最终实现 32 位范围内的整体移位。
+	
+	在 32 位扩展中，可将 4 个 8 位移位模块按字节级联，并结合 5 位移位控制信号完成 1、2、4、8、16 位的分级控制。低位模块负责输出结果的最低字节，高位模块负责接收来自更高或更低字节的补充位。通过这种“分级移位 + 字节串联”的方式，既能保持原有 8 位桶形移位器的设计结构，又能在较少修改的前提下扩展到 32 位数据宽度。
+}
+
+\figureplaceholder{32位桶形移位器扩展示意图}{shifter_32bit_expansion.png}
+
+\figureplaceholder{修改后的8位桶形移位器扩展示意图}{BarrelSFT8b_edited.png}
+
+
+\end{document}

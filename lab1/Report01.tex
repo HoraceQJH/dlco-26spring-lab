@@ -1,0 +1,317 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.4cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+
+\definecolor{main}{RGB}{38,70,83}
+\definecolor{sub}{RGB}{233,236,239}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{实验1 基本逻辑部件设计}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{main}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{main}}{\thesubsection}{0.5em}{}
+
+\setlist[itemize]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+
+\newcommand{\blankline}[1]{\vspace{0.25em}\noindent\rule{#1}{0.4pt}\vspace{0.25em}}
+\newcommand{\placeholder}[1]{
+	\begin{tcolorbox}[colback=sub,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+	#1
+	\end{tcolorbox}
+}
+\newcommand{\truthtable}[4]{%
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\bfseries #1\par\smallskip
+		\renewcommand{\arraystretch}{0.75}
+		\begin{tabular}{#2}
+			\toprule
+			#3\\
+			\midrule
+#4
+			\bottomrule
+		\end{tabular}
+	\end{tcolorbox}
+	\par\medskip%
+}
+\newcommand{\figureplaceholder}[2]{
+	\par\medskip
+	\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+		\centering\bfseries #1\par\smallskip
+		\IfFileExists{figures/#2}{%
+			\includegraphics[width=0.86\linewidth]{figures/\detokenize{#2}}%
+		}{%
+			\fbox{\parbox[c][6cm][c]{0.86\linewidth}{\centering 图片请放在 figures/\texttt{\detokenize{#2}}}}
+		}%
+	\end{tcolorbox}
+	\par\medskip
+}
+\newcommand{\riskimage}[2]{%
+	\begin{minipage}[t]{0.31\linewidth}
+		\centering
+		\includegraphics[height=3.75cm]{figures/\detokenize{#1}}\par
+		{\small #2}
+	\end{minipage}%
+}
+
+\begin{document}
+
+\begin{center}
+	{\Huge\bfseries 实验报告}\\[0.8em]
+	{\LARGE 实验1 基本逻辑部件设计}\\[1.2em]
+\end{center}
+
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm]
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X >{\bfseries}p{2.6cm}X}
+课程名称 & 数字逻辑与计算机组成 & 指导教师 & 吴海军 \\
+\end{tabularx}
+\end{tcolorbox}
+
+\section{实验目的}
+\placeholder{\begin{itemize}
+	\item 掌握 Logisim 的基本使用方法与实验流程。
+	\item 掌握 CMOS 晶体管与逻辑门的构建方法。
+	\item 掌握用不同器件实现多路选择器的设计方法。
+	\item 掌握电路外观设计、子电路级联与冒险检测的基本方法。
+\end{itemize}}
+
+\section{实验环境}
+\placeholder{\begin{itemize}
+	\item 平台：Digital Design / Logisim-ITA
+\end{itemize}}
+
+\section{实验内容}
+
+\subsection{利用基本逻辑门设计一个3输入多数表决器}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层设计模块图：} 本实验较简单，无顶层设计模块。
+		\item{输入输出引脚：} X、Y、Z 为输入引脚，F 为输出引脚。若输入中至少有两个为 1，则输出 F 为 1，否则为 0。
+		\item{子模块设计：} 本实验较简单，无子模块设计。
+		\item{数据及控制信号的传输通道：} 本实验中无控制信号，数据传输通道为输入引脚 X、Y、Z 直接连接到逻辑门电路，输出引脚 F 连接到逻辑门电路的输出端。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\placeholder{
+	由于实验较为简单，实验原理图与电路图可以合并为一个图，直接展示使用基本逻辑门实现的 3 输入多数表决器电路图。
+}
+\figureplaceholder{实验电路图}{circuit_diagram_01.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+	通过对 X、Y、Z 设置不同的输入值，观察输出，发现均满足真值表。
+}
+\figureplaceholder{实验数据仿真测试图}{simulation_results_01.png}
+\truthtable{3 输入多数表决器真值表}{c c c c}{X & Y & Z & F}{%
+	0 & 0 & 0 & 0\\
+	0 & 0 & 1 & 0\\
+	0 & 1 & 0 & 0\\
+	0 & 1 & 1 & 1\\
+	1 & 0 & 0 & 0\\
+	1 & 0 & 1 & 1\\
+	1 & 1 & 0 & 1\\
+	1 & 1 & 1 & 1\\
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	本次实验中没有出现错误。
+}
+
+\subsection{利用 CMOS 晶体管构建两输入或门，并验证其功能}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层设计模块图：} 本实验较简单，无顶层设计模块。
+		\item{输入输出引脚：} X、Y 为输入引脚，Z 为输出引脚。若 X 或 Y 中至少有一个为 1，则输出 Z 为 1，否则为 0。
+		\item{子模块设计：} 或门可以使用一个或非门和一个非门组合实现。或非门使用两个 PMOS 晶体管和两个 NMOS 晶体管构成；非门使用一个 PMOS 晶体管和一个 NMOS 晶体管构成。
+		\item{数据及控制信号的传输通道：} 本实验中无控制信号，数据传输通道为输入引脚 X、Y 直接连接到 CMOS 晶体管电路，输出引脚 Z 连接到 CMOS 晶体管电路的输出端。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{原理图}{principle_diagram_02.png}
+\figureplaceholder{电路图}{circuit_diagram_02.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+	通过对 X、Y 设置不同的输入值，观察输出，发现均满足真值表。
+}
+\figureplaceholder{实验数据仿真测试图}{simulation_results_02.png}
+\truthtable{两输入或门真值表}{c c c}{X & Y & Z}{%
+	0 & 0 & 0\\
+	0 & 1 & 1\\
+	1 & 0 & 1\\
+	1 & 1 & 1\\
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	在实验过程中，错误地将两个 PMOS 晶体管和两个 NMOS 晶体管的使用搞反，导致电路无法正确实现或门功能。通过检查电路连接，交换了这些晶体管。纠正连接后，电路能够正常工作。
+}
+\figureplaceholder{错误现象截图}{error_screenshot_02.png}
+
+\subsection{利用基本逻辑门和 CMOS 晶体管实现多路选择器，并进行静态冒险检测}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层设计模块图：} 本实验较简单，无顶层设计模块。
+		\item{输入输出引脚：} D0,D1 为二选一多路选择器的两个输入端，S 为二选一多路选择器的控制端，F 为二选一多路选择器的输出端。 当 S=0 时，输出 F=D0；当 S=1 时，输出 F=D1。
+		\item{子模块设计：} 本实验较简单，无子模块设计。
+		\item{数据及控制信号的传输通道：} 本实验中控制信号 S 直接连接到多路选择器电路的控制端，数据输入 D0、D1 直接连接到多路选择器电路的输入端，输出 F 连接到多路选择器电路的输出端。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\placeholder{
+	由于实验较为简单，实验原理图与电路图可以合并为一个图。
+}
+\figureplaceholder{实验电路图}{circuit_diagram_03.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{实验数据仿真测试图}{simulation_results_03.png}
+\truthtable{二选一多路选择器真值表}{c c c c}{D0 & D1 & S & F}{%
+	0 & 0 & 0 & 0\\
+	0 & 0 & 1 & 0\\
+	0 & 1 & 0 & 0\\
+	0 & 1 & 1 & 1\\
+	1 & 0 & 0 & 1\\
+	1 & 0 & 1 & 0\\
+	1 & 1 & 0 & 1\\
+	1 & 1 & 1 & 1\\
+}
+\placeholder{
+	以下为冒险检测的各步骤截图。
+}
+\par\medskip
+\noindent\riskimage{simulation_risk_03_00.png}{冒险检测步骤0}\hfill
+\riskimage{simulation_risk_03_01.png}{冒险检测步骤1}\hfill
+\riskimage{simulation_risk_03_02.png}{冒险检测步骤2}
+
+\vspace{0.6em}
+\noindent\riskimage{simulation_risk_03_03.png}{冒险检测步骤3}\hfill
+\riskimage{simulation_risk_03_04.png}{冒险检测步骤4}
+\par\medskip
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	错误现象：选择器的选择效果相反。
+	错误分析：在设计电路时，错误地将控制信号 S 的连接反了，导致当 S=0 时输出 F=D1，而当 S=1 时输出 F=D0。通过检查电路连接，纠正了控制信号 S 的连接位置。纠正连接后，电路能够正常工作。
+}
+\figureplaceholder{错误现象截图}{error_screenshot_03.png}
+
+\subsection{利用晶体管和传输门实现多路选择器。}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层设计模块图：} 实验电路较为简单，不需要顶层模块设计图。 
+		\item{输入输出引脚：} D0,D1 为二选一多路选择器的两个输入端，S 为二选一多路选择器的控制端，F 为二选一多路选择器的输出端。从两个输入中选择一个输出。
+		\item{子模块设计：} 本实验较简单，无子模块设计。 
+		\item{数据及控制信号的传输通道：} 本实验中控制信号 S 直接连接到多路选择器电路的控制端，数据输入 D0、D1 直接连接到多路选择器电路的输入端，输出 F 连接到多路选择器电路的输出端。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\placeholder{
+	由于实验较为简单，实验原理图与电路图可以合并为一个图。
+}
+\figureplaceholder{实验电路图}{circuit_diagram_04.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+	通过对 D0、D1、S 设置不同的输入值，观察输出，发现均满足真值表。
+}
+\figureplaceholder{实验数据仿真测试图}{simulation_results_04.png}
+\truthtable{二选一多路选择器真值表}{c c c c}{D0 & D1 & S & F}{%
+	0 & 0 & 0 & 0\\
+	0 & 0 & 1 & 0\\
+	0 & 1 & 0 & 0\\
+	0 & 1 & 1 & 1\\
+	1 & 0 & 0 & 1\\
+	1 & 0 & 1 & 0\\
+	1 & 1 & 0 & 1\\
+	1 & 1 & 1 & 1\\
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中没有出现错误。
+}
+
+\subsection{子电路级联实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+	\begin{itemize}
+		\item{顶层设计模块图：} 实验电路较为简单，不需要顶层模块设计图。 
+		\item{输入输出引脚：} D0,D1,D2,D3 为多路选择器的四个输入端，S0,S1 为多路选择器的控制端的两位，Y 为多路选择器的输出端。 当 S0S1=00 时，输出 Y=D0；当 S0S1=01 时，输出 Y=D2；当 S0S1=10 时，输出 Y=D1；当 S0S1=11 时，输出 Y=D3。
+		\item{子模块设计：} 2-1-MUX 的设计为实验 3 的实现，本实验利用 2 个 2-1-MUX 级联实现 4-1-MUX 的设计。
+		\item{数据及控制信号的传输通道：} 本实验中控制信号 S0、S1 直接连接到多路选择器电路的控制端，数据输入 D0、D1、D2、D3 直接连接到多路选择器电路的输入端，输出 Y 连接到多路选择器电路的输出端。
+	\end{itemize}
+}
+
+\subsubsection{实验原理图和电路图}
+\placeholder{
+	由于实验较为简单，实验原理图与电路图可以合并为一个图。
+}
+\figureplaceholder{实验电路图(不集线版)}{circuit_diagram_05.png}
+\figureplaceholder{实验电路图(集线版)}{circuit_diagram_06.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+	通过对 D0、D1、D2、D3、S0、S1 设置不同的输入值，观察输出，发现均满足真值表。
+}
+\figureplaceholder{实验数据仿真测试图}{simulation_results_05.png}
+\placeholder{
+	由于真值表过长，这里省略。
+}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+	实验中出现的错误为 2-1-MUX 没有正确保存。错误截图略去。 
+}
+
+\section{思考题}
+
+\subsection{根据 2 选 1 多路选择器的与-或电路，替换成与非-与非电路，并分析两种电路的特性。}
+\placeholder{
+	由于在先前实验中个人的实现即为与非-与非电路，故以下为与或电路的电路图。
+}
+\figureplaceholder{实验电路图}{circuit_diagram_07_01.png}
+\placeholder{
+	特性分析：
+
+	与或电路的逻辑结构直接由“与”门和“或”门组成，表达式为 $F = D0\bar{S} + D1S$。它的优点是逻辑关系直观、便于分析和调试，适合用基本逻辑门直接搭建；缺点是器件级联层数相对较多，传播延迟较大，而且在 CMOS 晶体管级实现时需要分别构造与门和或门，晶体管数量通常较多。
+
+	与非-与非电路利用德摩根定律将与或表达式变换为与非形式，通常可写为先对各支路做与非，再将结果进行与非合成。它的优点是适合 CMOS 晶体管实现，器件结构规整，输入端与输出端都可以用与非门统一表示，通常比与或结构更节省晶体管数量；缺点是中间需要经过逻辑变换，电路表达不如与或电路直观，分析时需要先进行等效变换。
+}
+
+\subsection{实现 4 位二进制数转换成格雷码的转换电路。}
+\figureplaceholder{实验电路图}{circuit_diagram_07_02.png}
+
+\subsection{实现 4 位二进制数的奇偶校验位生成电路。}
+\figureplaceholder{实验电路图}{circuit_diagram_07_03.png}
+
+\end{document}

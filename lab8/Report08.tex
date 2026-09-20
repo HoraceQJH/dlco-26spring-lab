@@ -1,0 +1,255 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.4cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+
+\definecolor{main}{RGB}{38,70,83}
+\definecolor{sub}{RGB}{233,236,239}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{实验8 流水线CPU设计与测试}
+\rhead{\thepage}
+%\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{main}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{main}}{\thesubsection}{0.5em}{}
+
+\setlist[itemize]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+
+\newcommand{\blankline}[1]{\vspace{0.25em}\noindent\rule{#1}{0.4pt}\vspace{0.25em}}
+\newcommand{\placeholder}[1]{
+\begin{tcolorbox}[colback=sub,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+#1
+\end{tcolorbox}
+}
+\newcommand{\answerbox}[2][3.2cm]{%
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+\begin{minipage}[t]{\linewidth}
+#2
+\end{minipage}
+\end{tcolorbox}
+}
+\newcommand{\fillcell}{\rule{0pt}{2.2ex}}
+\newcommand{\truthtable}[4]{%
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+%\renewcommand{\arraystretch}{0.75}
+\begin{tabular}{#2}
+\toprule
+#3\\
+\midrule
+#4
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\par\medskip%
+}
+\newcommand{\figureplaceholder}[2]{%
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+\IfFileExists{figures/#2}{%
+\includegraphics[width=0.80\linewidth]{figures/\detokenize{#2}}%
+}{%
+\fbox{\parbox[c][6cm][c]{0.80\linewidth}{\centering 图片请放在 figures/\texttt{\detokenize{#2}}}}%
+}%
+\end{tcolorbox}
+\par\medskip
+}
+\newcommand{\riskimage}[2]{%
+\begin{minipage}[t]{0.31\linewidth}
+\centering
+\includegraphics[height=3.75cm]{figures/\detokenize{#1}}\par
+{\small #2}
+\end{minipage}%
+}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries 实验报告}\\[0.8em]
+{\LARGE 实验8 流水线CPU设计与测试}\\[1.2em]
+\end{center}
+
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm]
+%\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X >{\bfseries}p{2.6cm}X}
+课程名称 & 数字逻辑与计算机组成 & 指导教师 & 吴海军 \\
+\end{tabularx}
+\end{tcolorbox}
+
+\section{实验目的}
+\placeholder{\begin{enumerate}
+\item 掌握基础流水线CPU的设计方法。
+\item 掌握基础流水线CPU中阻塞检测和旁路转发的实现方法。
+\item 掌握基础流水线CPU分支静态预测实现方法。
+\item 掌握基础流水线CPU程序代码优化的编程方法。
+\item 掌握基础流水线CPU硬件设计优化的设计方法。
+\end{enumerate}}
+
+\section{实验环境}
+\placeholder{平台：Logisim / RARS。}
+
+\section{实验内容}
+
+\subsection{流水线cpu设计实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    \begin{itemize}
+        \item 设计转发、阻塞、跳转检测模块
+        \item 设计流水段寄存器
+        \item 设计流水线cpu整体数据通路
+    \end{itemize}
+    \begin{center}
+        \begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{1.2cm}|>{\centering\arraybackslash}p{3.6cm}|X|}
+        \hline
+        阶段 & 主要功能 & 关键信号 \\
+        \hline
+        IF & 取指、PC更新 & PC、Instr、IF/ID.PC+4、IF/ID.Instr \\
+        \hline
+        ID & 译码、读寄存器、立即数生成 & rs1、rs2、BusA、BusB、imm、ID/EX控制信号 \\
+        \hline
+        EX & ALU运算、转发检测 & ALU结果、Zero、PC目标地址、EX/M控制信号 \\
+        \hline
+        M & 数据存储器访问、分支判断 & Mem地址、Mem数据、MemtoReg、M/WB控制信号 \\
+        \hline
+        WB & 结果写回寄存器堆 & RegWr、rd、WB.Result、寄存器堆写信号 \\
+        \hline
+        \end{tabularx}
+    \end{center}
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{转发检测模块电路图}{exp8_forwarding_circuit.png}
+\figureplaceholder{阻塞检测模块电路图}{exp8_stall_circuit.png}
+\figureplaceholder{跳转检测模块电路图}{exp8_branch_circuit.png}
+\figureplaceholder{流水线寄存器电路图}{exp8_pipeline_reg_circuit.png}
+\figureplaceholder{流水线CPU整体数据通路电路图}{exp8_pipeline_cpu_circuit.png}
+\figureplaceholder{流水线CPU整体数据通路原理图}{exp8_pipeline_cpu_principle.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{流水线CPU仿真测试图}{exp8_pipeline_cpu_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    在EX段操作数被转发时，一开始的设计会导致使用立即数的指令可能错误地使用了转发的值，导致计算结果错误。分析原因是转发逻辑没有区分立即数指令和寄存器指令。
+
+    解决方法有两种，第一种是修改转发逻辑，使其在立即数指令时不进行转发，第二种是修改立即数指令的译码逻辑，先处理转发信号再处理ALUBsrc信号。最后选取的解决方案是第二种，这要求在对转发次数进行计数的时候要结合ALUBsrc信号一同判断是否成功进行了转发。
+}
+
+\subsection{测试程序优化验证实验}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{测试程序优化验证实验仿真测试图1}{exp8_test_program_optimization_simulation_1.png}
+\figureplaceholder{测试程序优化验证实验仿真测试图2}{exp8_test_program_optimization_simulation_2.png}
+
+\subsection{结构优化设计实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{
+    将8.1设计的流水线CPU的转发判断逻辑从M段迁移到EX段，减少转发判断的延迟，提升流水线CPU的运行频率。同时修改控制器电路，传入IR，在 IR = 0xdead10cc 时触发 halt 信号，停止流水线CPU的运行。
+}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{结构优化数据通路电路图}{exp8_structure_optimization_data_path_circuit.png}
+\figureplaceholder{结构优化控制器电路图}{exp8_structure_optimization_controller_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{结构优化仿真测试图}{exp8_structure_optimization_simulation.png}
+
+\subsection{官方测试验证实验}
+
+\subsubsection{指令测试表格填写}
+\placeholder{
+\begin{center}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+序号 & 测试指令 & x1寄存器 & x3寄存器 & 时钟周期总数 & 阻塞次数 & 冲刷次数 \\
+\midrule
+1 & add & 0x00000010 & 0x00000026 & 493 & 0 & 16 \\
+2 & addi & 0x00000021 & 0x00000019 & 252 & 0 & 7 \\
+3 & and & 0x11111111 & 0x0000001b & 513 & 0 & 16 \\
+4 & andi & 0x00ff00ff & 0x0000000e & 208 & 0 & 7 \\
+5 & auipc & 0x00000000 & 0x00000003 & 61 & 0 & 3 \\
+6 & beq & 0x00000003 & 0x00000015 & 341 & 0 & 27 \\
+7 & bge & 0x00000003 & 0x00000018 & 377 & 0 & 36 \\
+8 & bgeu & 0x00000003 & 0x00000018 & 402 & 0 & 36 \\
+9 & blt & 0x00000003 & 0x00000015 & 341 & 0 & 27 \\
+10 & bltu & 0x00000003 & 0x00000015 & 366 & 0 & 27 \\
+11 & bne & 0x00000003 & 0x00000015 & 345 & 0 & 29 \\
+12 & jal & 0x00000003 & 0x00000003 & 57 & 0 & 3 \\
+13 & jalr & 0x00000000 & 0x00000007 & 137 & 0 & 13 \\
+14 & lb & 0x00002000 & 0x00000013 & 257 & 2 & 7 \\
+15 & lbu & 0x00002000 & 0x00000013 & 257 & 2 & 7 \\
+16 & lh & 0x00002000 & 0x00000013 & 269 & 2 & 7 \\
+17 & lhu & 0x00002000 & 0x00000013 & 276 & 2 & 7 \\
+18 & lui & 0xfffff800 & 0x00000006 & 63 & 0 & 1 \\
+19 & lw & 0x00002000 & 0x00000013 & 279 & 2 & 7 \\
+20 & or & 0x11111111 & 0x0000001b & 516 & 0 & 16 \\
+21 & ori & 0x00ff00ff & 0x0000000e & 215 & 0 & 7 \\
+22 & sb & 0x00000001 & 0x00000017 & 452 & 0 & 13 \\
+23 & sh & 0x00003001 & 0x00000017 & 505 & 0 & 13 \\
+24 & sll & 0x00000400 & 0x0000002b & 521 & 0 & 16 \\
+25 & slli & 0x00000021 & 0x00000019 & 251 & 0 & 7 \\
+26 & slt & 0x00000010 & 0x00000026 & 487 & 0 & 16 \\
+27 & slti & 0x00ff00ff & 0x00000019 & 247 & 0 & 7 \\
+28 & sltiu & 0x00ff00ff & 0x00000019 & 247 & 0 & 7 \\
+29 & sltu & 0x00000010 & 0x00000026 & 487 & 0 & 16 \\
+30 & sra & 0x00000400 & 0x0000002b & 540 & 0 & 16 \\
+31 & srai & 0x00000021 & 0x00000019 & 266 & 0 & 7 \\
+32 & srl & 0x00000400 & 0x0000002b & 534 & 0 & 16 \\
+33 & srli & 0x00000021 & 0x00000019 & 260 & 0 & 7 \\
+34 & sub & 0x00000010 & 0x00000025 & 485 & 0 & 16 \\
+35 & sw & 0x12233001 & 0x00000017 & 512 & 0 & 13 \\
+36 & xor & 0x11111111 & 0x0000001b & 515 & 0 & 16 \\
+37 & xori & 0x00ff00ff & 0x0000000e & 217 & 0 & 7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+}
+
+\section{思考题}
+
+\subsection{思考题 1}
+\placeholder{转发检测模块中，没有根据操作码OP来判断当前指令是否操作rs1和rs2字段，可能对输出产生什么影响？会导致程序执行错误吗？如何解决该问题，是否必要？被阻塞的指令能产生有效转发信号吗？}
+\answerbox{影响：store指令rs2是数据，branch指令rs1/rs2是比较操作数，不判断OP会导致错误转发信号，EX阶段使用错误操作数，程序出错。解决：转发检测中增加OP判断，R型/I型指令操作rd，store操作rs2，branch操作rs1/rs2，jal/jalr操作rd。必要性：必要，错误转发会覆盖数据通路值。阻塞转发：Stall时阻塞指令停留IF/ID段，转发信号未生成，不产生错误转发。}
+
+\subsection{思考题 2}
+\placeholder{本实验中将跳转检测放在EX段执行，能否继续优化迁移到ID段执行？试分析可行性。}
+\answerbox{可行性：理论上可将跳转检测迁移到ID段以减少分支延迟损失。ID段需具备：读取rs1/rs2值（需旁路）、计算分支目标地址（需加法器）、比较操作数（需比较器）。障碍：ID段无独立ALU，需添加比较器和加法器增加硬件复杂度；且ID段时序紧张，同时进行译码/读寄存器/立即数生成，再加入分支判断可能拖慢时钟周期。结论：技术可行但需额外硬件支持，将分支检测放在EX段是合理折中。}
+
+\subsection{思考题 3}
+\placeholder{根据基础流水线CPU中累加和测试程序三种情形的执行性能，分别讨论总周期数、阻塞次数、rs1转发次数、rs2转发次数、分支和跳转指令执行次数数据准确性，计算程序的平均CPI，并讨论提升该测试程序执行效率的方法。}
+\answerbox{三种情形：n=0、n=1、\(n\geq2\)，循环次数不同导致性能数据差异。准确性：总周期数准确；阻塞次数由Load-Use冒险决定，准确可数；转发次数准确反映RAW冒险频率；分支/跳转执行次数在每次循环迭代中均执行，累计准确。CPI：总周期数/指令总数，开销主要来自Load-Use阻塞。优化：load结果直接前递减少阻塞；优化循环结构减少控制冒险；编译器调度独立指令填补间隙；BTB减少分支损失。}
+
+\subsection{思考题 4}
+\placeholder{如何修改流水线CPU的设计，实现非法指令和结果溢出两种异常处理，标识异常类型，跳转异常处理程序。}
+\answerbox{非法指令：ID段添加指令合法性检测，检查opcode/funct3/funct7组合，检测到时Exception=1，cause=1，PC保存至mepc，Flush流水线，跳转到mtvec入口。结果溢出：ALU中增加溢出检测电路（有符号加法：操作数符号相同但结果符号不同即为溢出），Overflow=1时cause=2，同样Flush并跳转。标识：CSR的cause字段标识异常类型（1=非法指令，2=溢出），mepc保存触发异常的PC，mtval保存辅助信息。}
+
+\subsection{思考题 5}
+\placeholder{在实验中对于分支指令采用静态预测的方法来解决控制冒险，讨论如何实现1位动态预测的方法。}
+\answerbox{静态预测：实验中总是预测分支不成立，错误时冲刷流水线造成2周期损失。1位动态预测：BHT每项1位历史位，用PC低位索引，历史位=1预测跳转，=0预测不跳转，分支结果出来后更新历史位，预测错误时Flush并取正确路径；BTB记录目标地址减少计算延迟。优势：利用分支行为重复性，对循环分支比静态预测更准确；首次执行需冷启动，可结合2位饱和计数器提升准确性。}
+
+\subsection{思考题 6}
+\placeholder{简述高级流水线设计方法。}
+\answerbox{1.超标量：每周期发射多条指令提升ILP，需解决发射顺序、寄存器重命名、转移预测问题。2.VLIW：多条指令打包为长指令字，编译时显式指定并行，简化硬件但代码密度低。3.乱序执行：允许不按序执行避免数据冒险，通过寄存器重命名消除WAW/WAR冒险，需ROB和寄存器映射。4.深流水线：增加流水线级数提升频率，但增加冒险和分支损失，需权衡频率与单指令延迟。5.多线程：SMT在同一核内并发多线程，共享执行单元弥补利用率不足，线程切换掩盖长延迟。6.高级转移预测：2位饱和计数器、BHT、BTB、感知器预测器等，提升预测准确率减少控制冒险损失。}
+
+\end{document}

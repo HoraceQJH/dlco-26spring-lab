@@ -1,0 +1,557 @@
+\documentclass[UTF8,a4paper,11pt]{ctexart}
+
+\usepackage{geometry}
+\geometry{left=2.2cm,right=2.2cm,top=2.4cm,bottom=2.4cm,headheight=14pt,headsep=0.4cm}
+
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{tcolorbox}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,fit,calc}
+
+\definecolor{main}{RGB}{38,70,83}
+\definecolor{sub}{RGB}{233,236,239}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{实验5 存储器及数据通路设计}
+\rhead{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\titleformat{\section}{\Large\bfseries\color{main}}{\thesection}{0.6em}{}
+\titleformat{\subsection}{\large\bfseries\color{main}}{\thesubsection}{0.5em}{}
+
+\setlist[itemize]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+\setlist[enumerate]{leftmargin=2em,itemsep=0.3em,topsep=0.3em}
+
+\newcommand{\blankline}[1]{\vspace{0.25em}\noindent\rule{#1}{0.4pt}\vspace{0.25em}}
+\newcommand{\placeholder}[1]{
+\begin{tcolorbox}[colback=sub,colframe=main,boxrule=0.6pt,arc=2mm,left=2mm,right=2mm,top=1mm,bottom=1mm]
+#1
+\end{tcolorbox}
+}
+\newcommand{\truthtable}[4]{%
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+\renewcommand{\arraystretch}{0.75}
+\begin{tabular}{#2}
+\toprule
+#3\\
+\midrule
+#4
+\bottomrule
+\end{tabular}
+\end{tcolorbox}
+\par\medskip%
+}
+\newcommand{\figureplaceholder}[2]{
+\par\medskip
+\noindent\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm,left=1.5mm,right=1.5mm,top=1mm,bottom=1mm]
+\centering\bfseries #1\par\smallskip
+\IfFileExists{figures/#2}{%
+\includegraphics[width=0.80\linewidth,height=0.88\textheight,keepaspectratio]{figures/\detokenize{#2}}%
+}{%
+\fbox{\parbox[c][6cm][c]{0.80\linewidth}{\centering 图片请放在 figures/\texttt{\detokenize{#2}}}}
+}%
+\end{tcolorbox}
+\par\medskip
+}
+\newcommand{\riskimage}[2]{%
+\begin{minipage}[t]{0.31\linewidth}
+\centering
+\includegraphics[height=3.75cm]{figures/\detokenize{#1}}\par
+{\small #2}
+\end{minipage}%
+}
+
+\begin{document}
+
+\begin{center}
+{\Huge\bfseries 实验报告}\\[0.8em]
+{\LARGE 实验5 存储器及数据通路设计}\\[1.2em]
+\end{center}
+
+\begin{tcolorbox}[colback=white,colframe=main,boxrule=0.8pt,arc=2mm]
+\renewcommand{\arraystretch}{1.6}
+\begin{tabularx}{\textwidth}{>{\bfseries}p{2.6cm}X >{\bfseries}p{2.6cm}X}
+课程名称 & 数字逻辑与计算机组成 & 指导教师 & 吴海军 \\
+\end{tabularx}
+\end{tcolorbox}
+
+\section{实验目的}
+\placeholder{\begin{itemize}
+\item 掌握利用 ROM 组件实现指令存储器的设计方法。
+\item 掌握 ASCII 点阵字库的使用方法。
+\item 掌握利用 RAM 组件实现按字节存取的数据存储器的设计方法。
+\item 掌握实现 RV32I 存取指令的设计方法。
+\item 掌握 RV32I 下地址逻辑部件的设计方法。
+\item 掌握 RV32I 立即数扩展器的设计方式。
+\item 根据 RV32I 指令执行过程，掌握 RV32I 运算类指令数据通路的设计方法。
+\item 掌握跳转控制器的设计方法。
+\end{itemize}}
+
+\section{实验环境}
+\placeholder{\begin{itemize}
+\item 平台：Logisim。
+\end{itemize}}
+
+\section{实验内容}
+
+\subsection{只读存储器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{\begin{itemize}
+\item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+\item 输入输出引脚：
+\end{itemize}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+\hline
+ASCII-CODE & 输入显示字符的 ASCII 码 \\
+\hline
+row1 row15 & 输出信号 \\
+\hline
+CodeErr & 若 code 不在可见字符范围，则 CodeErr 为 1，不显示字符 \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{只读存储器电路图}{exp5_rom_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{只读存储器仿真测试图}{exp5_rom_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    本次实验中没有出现错误。
+}
+
+\subsection{数据存储器实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{\begin{itemize}
+\item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+\item 输入输出引脚：见下第一张表。
+\item 关键控制信号与地址对齐关系：见下第二张表。
+\end{itemize}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+\hline
+Addr & 地址 \\
+\hline
+CLK & 时钟信号 \\
+\hline
+WE & 写使能信号 \\
+\hline
+CLR & 清零信号 \\
+\hline
+Din & 输入数据 \\
+\hline
+MemOp & 控制信号 \\
+\hline
+Dout & 输出数据 \\
+\hline
+AlignErr & 错误信号（地址未对齐时为 1） \\
+\hline
+\end{tabularx}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\begin{tabularx}{0.98\linewidth}{|>{\centering\arraybackslash}p{0.14\linewidth}|>{\centering\arraybackslash}p{0.13\linewidth}|X|}
+\hline
+MemOp & 指令 & 含 义 \\
+\hline
+000 & lw,sw & 按字存取，4 字节 \\
+\hline
+001 & lbu & 按字节读取，1 个字节，0 扩展到 4 字节 \\
+\hline
+010 & lhu & 按半字读取，2 字节，0 扩展到 4 字节 \\
+\hline
+101 & lb,sb & 按字节存取，1 个字节，在读取时，按符号位扩展到 4 字节 \\
+\hline
+110 & lh,sh & 按半字存取，2 字节，在读取时，按符号位扩展到 4 字节 \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{数据存储器电路图}{exp5_dataram_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{数据存储器仿真测试图}{exp5_dataram_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    实验中没有出现错误。
+}
+
+\subsection{取指令部件 IFU 实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{\begin{itemize}
+\item 顶层模块设计：实验电路较为简单，不需要顶层模块设计图。
+\item 输入输出引脚：见下第一张表。
+\item 关键控制信号：见下第二张表。
+\end{itemize}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+\hline
+PC & 程序计数器 \\
+\hline
+Initial Address & 初始地址 \\
+\hline
+Reset & 复位初始地址 \\
+\hline
+Imm & 程序跳转的偏移量（立即数） \\
+\hline
+BusA & 寄存器 Rs1 中的数据 \\
+\hline
+CLK & 时钟信号 \\
+\hline
+NPCASrc & 控制 PC 加法器输入端 A 的信号 \\
+\hline
+NPCBSrc & 控制 PC 加法器输入端 B 的信号 \\
+\hline
+\end{tabularx}
+\end{center}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{7pt}
+\begin{tabularx}{0.98\linewidth}{|>{\centering\arraybackslash}p{0.18\linewidth}|>{\centering\arraybackslash}p{0.12\linewidth}|>{\centering\arraybackslash}p{0.12\linewidth}|X|}
+\hline
+指令类型 & NPCASrc & NPCBSrc & 下条指令地址 \\
+\hline
+顺序指令 & 0 & 0 & PC=PC+4 \\
+\hline
+无条件跳转 jal & 0 & 1 & PC=PC+Imm \\
+\hline
+无条件跳转 jalr & 1 & 1 & PC=R[rs1]+Imm \\
+\hline
+分支跳转指令 & 0 & 1 & 条件成立 PC=PC+Imm，否则 PC=PC+4 \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{IFU 取指令部件电路图}{exp5_ifu_circuit.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{IFU 取指令部件仿真测试图}{exp5_ifu_simulation.png}
+
+\begingroup
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{0.5pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\begin{longtable}{|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{1.0cm}|>{\centering\arraybackslash}p{1.5cm}|>{\centering\arraybackslash}p{2.0cm}|>{\centering\arraybackslash}p{1.45cm}|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{1.7cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{4.1cm}|}
+\hline
+\multicolumn{1}{|c|}{} & \multicolumn{6}{c|}{输入} & \multicolumn{2}{c|}{输出（边沿信号有效前）} \\
+\hline
+序号 & Reset & Initial Address & Imm & BusA & NPCASrc & NPCBSrc & PC & IR \\
+\hline
+\endfirsthead
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+1 & 1 & 0x400 & 0 & 0 & 0 & 0 & 0 & 0 \\
+\hline
+2 & 0 & 0 & 0 & 0 & 0 & 0 & 0x400 & 0x2083 \\
+\hline
+3 & 0 & 0 & 0 & 0 & 0 & 0 & 0x404 & 0x8133 \\
+\hline
+4 & 0 & 0 & 0x7f8 & 0 & 0 & 1 & 0x408 & 0x106213 \\
+\hline
+5 & 0 & 0 & 0x20c & 0 & 0 & 1 & 0xc00 & 0x413 \\
+\hline
+6 & 1 & 0x1500 & 0 & 0 & 0 & 0 & 0xe0c & 0xdeadbeef \\
+\hline
+7 & 0 & 0 & 0 & 0 & 0 & 0 & 0x1500 & 0x413 \\
+\hline
+8 & 0 & 0 & 0 & 0 & 0 & 0 & 0x1504 & 0x9117 \\
+\hline
+9 & 0 & 0 & 0 & 0x3fbc0 & 1 & 1 & 0x1508 & 0xffc10113 \\
+\hline
+10 & 0 & 0 & 0 & 0 & 0 & 0 & 0x3fbc0 & 0x413 \\
+\hline
+11 & 0 & 0 & 0x1fc & 0 & 0 & 1 & 0x3fbc4 & 0x9117 \\
+\hline
+12 & 0 & 0 & 0 & 0x150c & 1 & 1 & 0x3fdc0 & 0x40513 \\
+\hline
+13 & 0 & 0 & 0x0c00 & 0 & 1 & 1 & 0x150c & 0x39c000ef \\
+\hline
+14 & 0 & 0 & 0 & 0 & 0 & 0 & 0xc00 & 0x413 \\
+\hline
+15 & 0 & 0 & 0 & 0 & 0 & 0 & 0xc04 & 0x9117 \\
+\hline
+16 & 0 & 0 & 0xfffff9c8 & 0 & 0 & 1 & 0xc08 & 0xffc10113 \\
+\hline
+17 &  &  &  &  &  &  & 0x5d0 & 0xdeadbeef \\
+\hline
+\end{longtable}
+\endgroup
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    本实验中没有出现错误。
+}
+
+\subsection{取操作数部件 IDU 实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{\begin{itemize}
+\item 顶层模块设计：本实验电路较为简单，不需要顶层模块设计图。
+\item 输入输出引脚：见下第一张表。
+\end{itemize}}
+
+\begin{center}
+\renewcommand{\arraystretch}{1.25}
+\setlength{\tabcolsep}{8pt}
+\begin{tabularx}{0.96\linewidth}{|>{\centering\arraybackslash}p{0.28\linewidth}|>{\centering\arraybackslash}X|}
+\hline
+IR & 指令 \\
+\hline
+BusW & 写入寄存器堆的数据 \\
+\hline
+PC & 程序计数器 \\
+\hline
+ExtOp & 立即数扩展器控制信号 \\
+\hline
+RegWr & 寄存器堆写使能控制信号 \\
+\hline
+ALUASrc & ALU 输入端 A 的来源 \\
+\hline
+ALUBSrc & ALU 输入端 B 的来源 \\
+\hline
+CLK & 时钟信号 \\
+\hline
+DataA & ALU 输入端 A 的来源 \\
+\hline
+DataB & ALU 输入端 B 的来源 \\
+\hline
+BusA & 寄存器 Rs1 中的数据 \\
+\hline
+BusB & 寄存器 Rs2 中的数据 \\
+\hline
+Imm & 立即数 \\
+\hline
+OpCode & 操作码 \\
+\hline
+Func3,Func7 & 功能码 \\
+\hline
+\end{tabularx}
+\end{center}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{IDU 取操作数部件电路图}{exp5_idu_circuit.png}
+\figureplaceholder{IDU 立即数扩展器电路图}{exp5_idu_immext.png}
+\placeholder{
+    以下为 IDU 寄存器堆在本实验中做出的修改部分，使得第 0 号寄存器始终为 0，且在写入时，如果写入地址为 0，则不进行写入操作。其余均与先前实验中设计的寄存器堆相同。
+}
+\figureplaceholder{IDU 寄存器堆修改部分电路图}{exp5_idu_regfile.png}
+
+\subsubsection{实验数据仿真测试图}
+\placeholder{
+    以下为取操作数部件输入输出数据列表。
+}
+
+\begingroup
+\small
+\renewcommand{\arraystretch}{1.15}
+\setlength{\tabcolsep}{1pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\begin{longtable}{|>{\centering\arraybackslash}p{0.8cm}|>{\centering\arraybackslash}p{1.85cm}|>{\centering\arraybackslash}p{2.05cm}|>{\centering\arraybackslash}p{3.1cm}|>{\centering\arraybackslash}p{3.95cm}|>{\centering\arraybackslash}p{3.05cm}|}
+\hline
+PC & IR & BusW & 控制信号值 & 指令功能 / 汇编语句 & DataA、DataB 输出值 \\
+\hline
+\endfirsthead
+\hline
+PC & IR & BusW & 控制信号值 & 指令功能 / 汇编语句 & DataA、DataB 输出值 \\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+0x0 & 0xfedca2b7 & 0xfedca000 & ExtOp=1 RegWr=1 ALUASrc=0 ALUBSrc=2 & lui x5,0xfedca & 0x0 / 0xfedca000 \\
+\hline
+0x4 & 0xf9c28293 & 0xfedc9f9c & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=2 & addi x5,x5,-100 & 0xfedca000 / 0xffffff9c \\
+\hline
+0x8 & 0x01006013 & 0x10 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=2 & ori x0,x0,0x10 & 0x0 / 0x10 \\
+\hline
+0xc & 0x06502223 & 0x64 & ExtOp=2 RegWr=0 ALUASrc=0 ALUBSrc=2 & sw x5,0x64(x0) & 0x0 / 0x64 \\
+\hline
+0x10 & 0x06400303 & 0xffffff9c & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=2 & lb x6,0x64(x0) & 0x0 / 0x64 \\
+\hline
+0x14 & 0x06601423 & 0x68 & ExtOp=2 RegWr=0 ALUASrc=0 ALUBSrc=2 & sh x6,0x68(x0) & 0x0 / 0x68 \\
+\hline
+0x18 & 0x06405383 & 0x9f9c & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=2 & lhu x7,0x64(x0) & 0x0 / 0x64 \\
+\hline
+0x1c & 0x06701623 & 0x6c & ExtOp=2 RegWr=0 ALUASrc=0 ALUBSrc=2 & sh x7,0x6c(x0) & 0x0 / 0x6c \\
+\hline
+0x20 & 0x4042d413 & 0xffedc9f9 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=2 & srai x8,x5,0x4 & 0xfedc9f9c / 0x404 \\
+\hline
+0x24 & 0x006444b3 & 0x123665 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & xor x9,x8,x6 & 0xffedc9f9 / 0xffffff9c \\
+\hline
+0x28 & 0x00649533 & 0x50000000 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & sll x10,x9,x6 & 0x123665 / 0xffffff9c \\
+\hline
+0x2c & 0x008505b3 & 0x4fedc9f9 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & add x11,x10,x8 & 0x50000000 / 0xffedc9f9 \\
+\hline
+0x30 & 0x00b2a633 & 0x1 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & slt x12,x5,x11 & 0xfedc9f9c / 0x4fedc9f9 \\
+\hline
+0x34 & 0x00b2b6b3 & 0x0 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & sltu x13,x5,x11 & 0xfedc9f9c / 0x4fedc9f9 \\
+\hline
+0x38 & 0x40b287b3 & 0xaeeed5a3 & ExtOp=0 RegWr=1 ALUASrc=0 ALUBSrc=0 & sub x15,x5,x11 & 0xfedc9f9c / 0x4fedc9f9 \\
+\hline
+0x3c & 0x06f02823 & 0x70 & ExtOp=2 RegWr=0 ALUASrc=0 ALUBSrc=2 & sw x15,0x70(x0) & 0x0 / 0x70 \\
+\hline
+0x40 & 0x0067c263 & 0x1 & ExtOp=3 RegWr=0 ALUASrc=0 ALUBSrc=0 & blt x15,x6,0x4 & 0xaeeed5a3 / 0xffffff9c \\
+\hline
+0x44 & 0x0067d263 & 0x1 & ExtOp=3 RegWr=0 ALUASrc=0 ALUBSrc=0 & bge x15,x6,0x4 & 0xaeeed5a3 / 0xffffff9c \\
+\hline
+0x48 & 0x0040086f & 0x4c & ExtOp=4 RegWr=1 ALUASrc=1 ALUBSrc=1 & jal x16,0x4 & 0x48 / 0x4 \\
+\hline
+0x4c & 0x004808e7 & 0x50 & ExtOp=0 RegWr=1 ALUASrc=1 ALUBSrc=1 & jalr x17,x16,0x4 & 0x4c / 0x4 \\
+\hline
+0x50 & 0x00001917 & 0x1050 & ExtOp=1 RegWr=1 ALUASrc=1 ALUBSrc=2 & auipc x18,0x1 & 0x50 / 0x1000 \\
+\hline
+\end{longtable}
+\endgroup
+\figureplaceholder{取操作数部件 IDU 仿真测试图}{exp5_idu_simulation.png}
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    一开始的错误在于将两种立即数拓展方式的控制型号理解反了，使得前两组测试数据的输出与答案不符。在添加了一个非门后，问题得以解决。
+}
+
+\subsection{数据通路实验}
+
+\subsubsection{实验整体方案设计}
+\placeholder{\begin{itemize}
+\item 顶层模块设计：本实验电路较为简单，不需要顶层模块设计图。
+\item 主要子电路：IFU、IDU、ALU、DataRAM、BandJ、寄存器堆等。
+\end{itemize}}
+
+\subsubsection{实验原理图和电路图}
+\figureplaceholder{单周期 CPU 数据通路电路图}{exp5_datapath_circuit.png}
+\figureplaceholder{跳转控制器组件电路图}{exp5_datapath_bj.png}
+
+\subsubsection{实验数据仿真测试图}
+\figureplaceholder{数据通路仿真测试图}{exp5_datapath_simulation.png}
+
+\begingroup
+\scriptsize
+\renewcommand{\arraystretch}{1.03}
+\setlength{\tabcolsep}{1pt}
+\setlength{\LTleft}{0pt}
+\setlength{\LTright}{0pt}
+\begin{longtable}{|>{\centering\arraybackslash}p{0.65cm}|>{\centering\arraybackslash}p{1.55cm}|>{\centering\arraybackslash}p{6.25cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.6cm}|>{\centering\arraybackslash}p{1.55cm}|>{\centering\arraybackslash}p{1.3cm}|>{\centering\arraybackslash}p{1.3cm}|}
+\hline
+序号 & 指令 & 控制信号赋值，未列出的控制信号值为0。 & \multicolumn{5}{c|}{输出信号值} \\
+\cline{4-8}
+& & & PC & BusW & Din & NPCASrc & NPCBSrc \\
+\hline
+\endfirsthead
+\hline
+序号 & 指令 & 控制信号赋值，未列出的控制信号值为0。 & \multicolumn{5}{c|}{输出信号值} \\
+\cline{4-8}
+& & & PC & BusW & Din & NPCASrc & NPCBSrc \\
+\hline
+\endhead
+\hline
+\endfoot
+\hline
+\endlastfoot
+1 & fedca2b7 & ExtOp=1, RegWr=1, ALUBSrc=2, ALUctr=f & 0x400 & 0xfedca000 & 0x0 & 0 & 0 \\
+\hline
+2 & f9c28293 & RegWr=1, ALUBSrc=2 & 0x404 & 0xfedc9f9c & 0x0 & 0 & 0 \\
+\hline
+3 & 01006013 & RegWr=1, ALUBSrc=2, ALUctr=6 & 0x408 & 0x10 & 0x0 & 0 & 0 \\
+\hline
+4 & 06502223 & ExtOp=2, MemWr=1, ALUBSrc=2 & 0x40c & 0x64 & 0xfedc9f9c & 0 & 0 \\
+\hline
+5 & 06400303 & MemOp=5, RegWr=1, ALUBSrc=2, MemtoReg=1 & 0x410 & 0xffffff9c & 0x0 & 0 & 0 \\
+\hline
+6 & 06601423 & ExtOp=2, MemWr=1, MemOp=6, ALUBSrc=2 & 0x414 & 0x68 & 0xffffff9c & 0 & 0 \\
+\hline
+7 & 06405383 & MemOp=2, RegWr=1, ALUBSrc=2, MemtoReg=1 & 0x418 & 0x9f9c & 0x0 & 0 & 0 \\
+\hline
+8 & 06701623 & ExtOp=2, MemWr=1, MemOp=6, ALUBSrc=2 & 0x41c & 0x6c & 0x9f9c & 0 & 0 \\
+\hline
+9 & 4042d413 & RegWr=1, ALUBSrc=2, ALUctr=d & 0x420 & 0xffedc9f9 & 0x0 & 0 & 0 \\
+\hline
+10 & 006444b3 & RegWr=1, ALUctr=4 & 0x424 & 0x123665 & 0xffffff9c & 0 & 0 \\
+\hline
+11 & 00649533 & RegWr=1, ALUctr=1 & 0x428 & 0x50000000 & 0xffffff9c & 0 & 0 \\
+\hline
+12 & 008505b3 & RegWr=1 & 0x42c & 0x4fedc9f9 & 0xffedc9f9 & 0 & 0 \\
+\hline
+13 & 00b2a633 & RegWr=1, ALUctr=2 & 0x430 & 0x1 & 0x4fedc9f9 & 0 & 0 \\
+\hline
+14 & 00b2b6b3 & RegWr=1, ALUctr=3 & 0x434 & 0x0 & 0x4fedc9f9 & 0 & 0 \\
+\hline
+15 & 40b287b3 & RegWr=1, ALUctr=8 & 0x438 & 0x0 & 0x4fedc9f9 & 0 & 0 \\
+\hline
+16 & 06f02823 & ExtOp=2, MemWr=1, ALUBSrc=2 & 0x43c & 0x70 & 0x0 & 0 & 0 \\
+\hline
+17 & 0067c263 & ExtOp=3, ALUctr=2, BandJ=6 & 0x440 & 0x0 & 0xffffff9c & 0 & 0 \\
+\hline
+18 & 0067d263 & ExtOp=3, ALUctr=2, BandJ=7 & 0x444 & 0x0 & 0xffffff9c & 0 & 1 \\
+\hline
+19 & 0040086f & ExtOp=4, RegWr=1, ALUABSrc=1, ALUBSrc=1, BandJ=1 & 0x448 & 0x44c & 0x0 & 0 & 1 \\
+\hline
+20 & 004808e7 & RegWr=1, ALUABSrc=1, ALUBSrc=1, BandJ=2 & 0x44c & 0x450 & 0x0 & 1 & 1 \\
+\hline
+21 & 00001917 & ExtOp=1, RegWr=1, ALUABSrc=1, ALUBSrc=2 & 0x450 & 0x1450 & 0x0 & 0 & 0 \\
+\hline
+\end{longtable}
+\endgroup
+
+\subsubsection{错误现象及分析}
+\placeholder{
+    错误来源于加载了错误的指令数据。在加载正确的指令数据后，正确通过了所有测试数据。
+}
+
+\section{思考题}
+
+\subsection{如何利用 ROM 实验实现滚动显示的功能，在 3 个 LED 点阵矩阵中，左右滚动显示 5 个 ASCII 字符？}
+\placeholder{
+    可以在 ROM 中存储 5 个 ASCII 字符的点阵字模数据，并设计一个计数器来控制当前显示的字符位置。每当计数器增加时，显示的字符就向左滚动一个位置。当计数器达到一定值（0x4f）时，重新回到初始位置，实现循环滚动显示的效果。电路文件存储在 lab5.6.circ 中。
+}
+\figureplaceholder{滚动显示布局图}{exp5_scroll_design.png}
+
+\subsection{分析说明如果 PC 寄存器、寄存器堆和数据存储器写入数据的时钟信号触发边沿不一致，则对程序执行有何影响？}
+\placeholder{
+    如果 PC、寄存器堆和数据存储器的写入边沿不一致，就会破坏单周期 CPU 中“一个周期内状态同时更新”的假设，使各部件的写入与下一条指令的取数、译码不同步。这样容易产生读到旧值或未稳定数据的情况，造成数据冒险、写回错误、访存错误，严重时还会出现跳转地址错误或程序执行顺序紊乱。因此，通常应让这些时序部件尽量使用同一触发边沿，或通过严格的两相时钟设计保证时序正确。
+}
+
+\subsection{在 CPU 启动执行后，如何实现在当前程序结束后，CPU 不再继续往下执行？}
+\placeholder{
+    可以在程序末尾加入一条结束指令，例如 ecall，并在控制器中把它译码为停机信号，使 PCWrite 失效，从而冻结 PC，不再继续取后续指令；同时也可关闭寄存器堆和数据存储器的写使能，避免产生无意义的状态更新。若电路中没有专门的停机控制，也可以把最后一条指令写成跳转到自身的指令，例如 jal x0, 0，让 CPU 进入无限循环，从效果上停止继续向下执行。
+}
+
+\end{document}
